@@ -39,7 +39,12 @@ export const searchSearxng = async (
     });
   }
 
-  const res = await axios.get(url.toString());
+  const res = await axios.get(url.toString(), {
+    headers: {
+      'X-Forwarded-For': '127.0.0.1',
+      'X-Real-IP': '127.0.0.1',
+    },
+  });
 
   const results: SearxngSearchResult[] = res.data.results;
   const suggestions: string[] = res.data.suggestions;
