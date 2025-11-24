@@ -1,0 +1,48 @@
+# Fly.io configuration for Perplexica service
+# Separate app for Phase 2 web discovery
+
+app = "policy-finder-perplexica"
+primary_region = "iad"  # Same region as main app for low latency
+
+[build]
+  dockerfile = "app.dockerfile"
+  build_args = []
+
+[env]
+  # Perplexica runs on port 3000 internally
+  PORT = "3000"
+  NODE_ENV = "production"
+  
+  # SearXNG endpoint - using Fly.io private networking
+  SEARXNG_API_URL = "http://policy-finder-searxng.internal:8080"
+  
+  # Data directory
+  DATA_DIR = "/home/perplexica"
+  
+  # OpenAI API key (set via fly secrets set OPENAI_API_KEY=...)
+  # OPENAI_API_KEY will be set as a secret, not in env section
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1  # Keep at least 1 machine running to avoid cold starts
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/"
+
+[[vm]]
+  memory_mb = 1024
+  cpu_kind = "shared"
+  cpus = 1
+
+[[mounts]]
+  source = "perplexica_data"
+  destination = "/home/perplexica/data"
+

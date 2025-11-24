@@ -1,0 +1,38 @@
+# Fly.io configuration for SearXNG service (used by Perplexica)
+# Separate app for SearXNG metasearch engine
+
+app = "policy-finder-searxng"
+primary_region = "iad"  # Same region as main app for low latency
+
+[build]
+  dockerfile = "Dockerfile.searxng"
+
+[env]
+  # SearXNG runs on port 8080
+  SEARXNG_BASE_URL = "http://policy-finder-searxng.fly.dev/"
+  # IPv6 dual-stack binding for Fly.io internal networking
+  HOSTNAME = "::"
+  PORT = "8080"
+  # Disable rate limiter/bot detection to allow Perplexica requests
+  SEARXNG_LIMITER = "false"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/"
+
+[[vm]]
+  memory_mb = 512
+  cpu_kind = "shared"
+  cpus = 1
+

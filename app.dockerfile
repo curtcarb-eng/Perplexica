@@ -39,4 +39,8 @@ COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 RUN sed -i 's/\r$//' ./entrypoint.sh || true
 
+# Copy config.toml (API keys in config.toml will be overridden by environment variables)
+# For Fly.io, OPENAI_API_KEY should be set as a secret, not in config.toml
+COPY config.toml ./config.toml
+
 CMD ["/home/perplexica/entrypoint.sh"]

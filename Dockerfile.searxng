@@ -1,0 +1,15 @@
+# Simple Dockerfile for SearXNG on Fly.io
+FROM searxng/searxng:latest
+
+# Copy settings.yml with limiter disabled to allow Perplexica requests
+COPY searxng/settings.yml /etc/searxng/settings.yml
+
+# Copy limiter.toml (even if empty, prevents missing file warning)
+COPY searxng/limiter.toml /etc/searxng/limiter.toml
+
+# SearXNG runs on port 8080 by default
+EXPOSE 8080
+
+# Use SearXNG's default entrypoint - IPv6 binding configured via environment variables
+# in fly-searxng.toml (HOSTNAME="::", PORT="8080")
+
